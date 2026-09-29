@@ -47,8 +47,22 @@ function MobileNav() {
 }
 
 function Shell() {
-  const { activeTab } = useHealth();
+  const { activeTab, focusLockout } = useHealth();
   const Tab = TABS[activeTab] ?? OverviewTab;
+
+  // Deep Focus Lockout: hide all chrome for zero distractions
+  if (focusLockout) {
+    return (
+      <div className="min-h-screen">
+        <AuroraBackground />
+        <div className="relative z-10 flex min-h-screen items-center justify-center px-4 py-10">
+          <div className="w-full max-w-2xl animate-fade-slide">
+            <Tab />
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
@@ -64,7 +78,7 @@ function Shell() {
             </div>
           </main>
           <footer className="px-8 pb-8 text-center text-xs font-medium text-slate-400">
-            EduHealth AI · Phase 1 — simulated demo data
+            EduHealth AI · simulated demo data
           </footer>
         </div>
       </div>

@@ -104,6 +104,7 @@ export function HealthProvider({ children }) {
   const [tasks, setTasks] = useState(initialTasks);
   const [focusTaskId, setFocusTaskId] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
+  const [focusLockout, setFocusLockout] = useState(false);
 
   // Cognitive Readiness Index: computed, 100 - stressScore
   const criScore = useMemo(
@@ -165,6 +166,8 @@ export function HealthProvider({ children }) {
     startFocus,
     activeTab,
     setActiveTab,
+    focusLockout,
+    setFocusLockout,
     resetBiometrics,
   };
 
