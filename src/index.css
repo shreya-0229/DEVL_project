@@ -1,0 +1,79 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased;
+  font-family: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+}
+
+@layer components {
+  .glass-card {
+    @apply bg-white/85 backdrop-blur-xl border border-white/60 rounded-3xl shadow-xl shadow-indigo-500/5 hover:shadow-2xl hover:shadow-indigo-500/10 transition-all duration-300;
+  }
+}
+
+@keyframes drift {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  50% {
+    transform: translate(48px, -36px) scale(1.08);
+  }
+}
+
+@keyframes fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes soft-ping {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  80%,
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
+}
+
+.animate-drift {
+  animation: drift 18s ease-in-out infinite;
+}
+.animate-fade-slide {
+  animation: fade-slide 0.35s ease-out both;
+}
+.animate-soft-ping {
+  animation: soft-ping 1.8s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Custom range sliders (Demo Simulator) */
+input[type="range"] {
+  @apply w-full appearance-none h-2 rounded-full bg-slate-200 outline-none cursor-pointer;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  @apply h-5 w-5 rounded-full bg-white border-[3px] border-indigo-500 shadow-lg cursor-pointer;
+}
+input[type="range"]::-moz-range-thumb {
+  @apply h-5 w-5 rounded-full bg-white border-[3px] border-indigo-500 shadow-lg cursor-pointer;
+}
