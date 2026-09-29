@@ -25,3 +25,8 @@ npm run dev
 ```bash
 npm run build
 ```
+
+## Phase 2 — Analytics & Back-Scheduler
+
+- **Bio-Stress Analytics**: Three.js 3D spatial scatter (stress × HRV × energy, hover tooltips), rotating wireframe brain mesh with stress-reactive color, 24×7 circadian heatmap, Recharts 24h dual-axis recovery curves, cognitive time donut, 5-point wellness radar, AI insights
+- **Task Manager & Back-Scheduler**: Classroom sync simulation, per-task time budgeting (presets + slider) with live daily total, 3-column smart prioritizer (Do Right Now / Quick Wins / stress-activated Audio Queue), back-scheduler modal with draggable milestone handles

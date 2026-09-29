@@ -1,79 +1,139 @@
-import { Activity, TrendingUp, Brain, Bell } from "lucide-react";
+import { Activity, Sparkles, Moon, Sun, BatteryCharging } from "lucide-react";
 import { useHealth } from "../store/HealthContext";
+import Scatter3D from "../analytics/Scatter3D";
+import BrainMesh from "../analytics/BrainMesh";
+import CircadianHeatmap from "../analytics/CircadianHeatmap";
+import BioLineChart from "../analytics/BioLineChart";
+import TimeDonut from "../analytics/TimeDonut";
+import WellnessRadar from "../analytics/WellnessRadar";
 
-const FEATURES = [
-  {
-    icon: TrendingUp,
-    title: "HRV & stress trend charts",
-    desc: "Continuous biometric timelines with anomaly flags.",
-  },
-  {
-    icon: Brain,
-    title: "Tension heatmap",
-    desc: "See when stress peaks across your day and week.",
-  },
-  {
-    icon: Bell,
-    title: "Recovery correlation insights",
-    desc: "Which habits actually move your CRI — quantified.",
-  },
-];
+function SectionCard({ index, title, sub, children, className = "" }) {
+  return (
+    <div className={`glass-card p-5 md:p-6 ${className}`}>
+      <div className="mb-4 flex items-start gap-3">
+        <span className="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 text-xs font-black text-white shadow-md shadow-indigo-500/25">
+          {index}
+        </span>
+        <div>
+          <h2 className="text-base font-extrabold tracking-tight text-slate-900 md:text-lg">
+            {title}
+          </h2>
+          {sub && <p className="mt-0.5 text-xs font-medium text-slate-500">{sub}</p>}
+        </div>
+      </div>
+      {children}
+    </div>
+  );
+}
 
 export default function AnalyticsTab() {
-  const { stressScore, hrv, gsr, co2, criScore } = useHealth();
+  const { stressScore, hrv, zone } = useHealth();
+
+  const insights = [
+    {
+      icon: zone.id === "acute" ? Moon : Sun,
+      tint: zone.id === "acute" ? "bg-rose-50 text-rose-600" : "bg-amber-50 text-amber-600",
+      title:
+        zone.id === "acute"
+          ? "Stress is elevated — the Audio Queue in Task Manager is now active."
+          : zone.id === "moderate"
+            ? "Tension is moderate — keep sessions under 25 minutes today."
+            : "Recovery is high — this is your deep-work window.",
+    },
+    {
+      icon: BatteryCharging,
+      tint: "bg-emerald-50 text-emerald-600",
+      title:
+        hrv >= 60
+          ? `HRV at ${Math.round(hrv)} ms signals strong recovery. Load up cognitively.`
+          : `HRV at ${Math.round(hrv)} ms is depressed. Prioritize sleep tonight.`,
+    },
+    {
+      icon: Sparkles,
+      tint: "bg-cyan-50 text-cyan-600",
+      title: "Peak focus window detected: 9 AM – 12 PM. Schedule dense tasks there.",
+    },
+  ];
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="glass-card p-8 text-center md:p-12">
-        <div className="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/30">
-          <Activity size={28} />
-        </div>
-        <h1 className="mt-5 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
+      <div className="glass-card p-6 md:p-8">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-[11px] font-extrabold uppercase tracking-wider text-indigo-600">
+          <Activity size={13} /> Deep biometric intelligence
+        </span>
+        <h1 className="mt-3 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
           Bio-Stress Analytics
         </h1>
-        <span className="mt-3 inline-flex items-center rounded-full bg-indigo-50 px-4 py-1.5 text-xs font-extrabold uppercase tracking-wider text-indigo-600">
-          Arriving in Phase 2
-        </span>
-        <p className="mx-auto mt-4 max-w-md text-sm font-medium leading-relaxed text-slate-500">
-          Deep biometric intelligence is on the roadmap. Your live state engine is already
-          streaming below.
+        <p className="mt-1.5 max-w-2xl text-sm font-medium text-slate-500">
+          Six visual models of your physiology — spatial clustering, neural state, circadian
+          rhythm, recovery curves, time allocation, and holistic wellness.
         </p>
       </div>
 
-      <div className="glass-card p-5 md:p-6">
-        <p className="text-xs font-extrabold uppercase tracking-[0.2em] text-slate-500">
-          Live stream · now
-        </p>
-        <div className="mt-3 grid grid-cols-2 gap-3 sm:grid-cols-4">
-          {[
-            { label: "Stress", value: `${Math.round(stressScore)}%` },
-            { label: "HRV", value: `${Math.round(hrv)} ms` },
-            { label: "GSR", value: `${gsr.toFixed(1)} µS` },
-            { label: "CRI", value: `${criScore}/100` },
-          ].map((s) => (
-            <div key={s.label} className="rounded-2xl bg-slate-50 p-4 text-center">
-              <p className="text-xl font-extrabold tabular-nums text-slate-900">{s.value}</p>
-              <p className="mt-0.5 text-[11px] font-bold uppercase tracking-wider text-slate-400">
-                {s.label}
-              </p>
-            </div>
-          ))}
-        </div>
-        <p className="mt-3 text-center text-xs font-semibold text-slate-400">
-          CO2 {Math.round(co2)} ppm · Tune these live in the Demo Simulator
-        </p>
+      <div className="grid gap-6 lg:grid-cols-3">
+        <SectionCard
+          index="1"
+          title="3D Spatial Scatter"
+          sub="Stress × HRV × Cognitive Energy clusters"
+          className="lg:col-span-2"
+        >
+          <Scatter3D />
+        </SectionCard>
+        <SectionCard index="2" title="Neural State Mesh" sub="Live wireframe · color follows stress">
+          <BrainMesh stressScore={stressScore} />
+          <p className="mt-2 text-center text-xs font-medium leading-relaxed text-slate-500">
+            Emerald below 35% · Amber 36–65% · Rose above 65%. Tune it live in the Demo
+            Simulator.
+          </p>
+        </SectionCard>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-3">
-        {FEATURES.map(({ icon: Icon, title, desc }) => (
-          <div key={title} className="glass-card p-5">
-            <div className="grid h-10 w-10 place-items-center rounded-2xl bg-indigo-50 text-indigo-600">
-              <Icon size={20} />
-            </div>
-            <p className="mt-3 text-sm font-extrabold text-slate-900">{title}</p>
-            <p className="mt-1 text-xs font-medium leading-relaxed text-slate-500">{desc}</p>
+      <SectionCard
+        index="3"
+        title="Circadian Heatmap"
+        sub="24 hours × 7 days · rest → focus → stress spikes"
+      >
+        <CircadianHeatmap />
+      </SectionCard>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <SectionCard
+          index="4"
+          title="24-Hour Recovery Curves"
+          sub="Stress spikes · HRV recovery · Focus quality"
+          className="lg:col-span-2"
+        >
+          <BioLineChart />
+        </SectionCard>
+        <SectionCard index="5" title="Cognitive Time" sub="How the last 24h were spent">
+          <TimeDonut />
+        </SectionCard>
+      </div>
+
+      <div className="grid gap-6 lg:grid-cols-3">
+        <SectionCard index="6" title="Holistic Wellness" sub="5-point spider radar">
+          <WellnessRadar />
+        </SectionCard>
+        <div className="glass-card p-5 md:p-6 lg:col-span-2">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-violet-500 to-pink-500 text-white shadow-md shadow-pink-500/25">
+              <Sparkles size={16} />
+            </span>
+            <h2 className="text-base font-extrabold tracking-tight text-slate-900 md:text-lg">
+              AI Insights
+            </h2>
           </div>
-        ))}
+          <div className="flex flex-col gap-3">
+            {insights.map(({ icon: Icon, tint, title }, i) => (
+              <div key={i} className="flex items-start gap-3 rounded-2xl bg-slate-50 p-4">
+                <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-xl ${tint}`}>
+                  <Icon size={18} />
+                </span>
+                <p className="text-sm font-semibold leading-relaxed text-slate-700">{title}</p>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   );

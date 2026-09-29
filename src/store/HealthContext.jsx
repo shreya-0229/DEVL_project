@@ -52,6 +52,7 @@ const initialTasks = [
     dueDate: "Today, 11:59 PM",
     format: "8 Exercises",
     userTimeMins: 45,
+    budgetMins: 45,
     priorityScore: 95,
     done: false,
     icon: "book",
@@ -63,6 +64,7 @@ const initialTasks = [
     dueDate: "Tomorrow, 5:00 PM",
     format: "Code Submission",
     userTimeMins: 30,
+    budgetMins: 30,
     priorityScore: 80,
     done: false,
     icon: "code",
@@ -74,6 +76,7 @@ const initialTasks = [
     dueDate: "In 2 Days",
     format: "22-Page Chapter",
     userTimeMins: 15,
+    budgetMins: 15,
     priorityScore: 60,
     done: false,
     isAudioConverted: true,
@@ -86,6 +89,7 @@ const initialTasks = [
     dueDate: "In 4 Days",
     format: "Essay Draft",
     userTimeMins: 60,
+    budgetMins: 60,
     priorityScore: 40,
     done: false,
     icon: "doc",
@@ -120,6 +124,15 @@ export function HealthProvider({ children }) {
   const toggleTask = (id) =>
     setTasks((ts) => ts.map((t) => (t.id === id ? { ...t, done: !t.done } : t)));
 
+  const setBudgetMins = (id, mins) =>
+    setTasks((ts) =>
+      ts.map((t) =>
+        t.id === id
+          ? { ...t, budgetMins: Math.max(5, Math.min(180, Math.round(mins))) }
+          : t
+      )
+    );
+
   const startFocus = (id) => {
     setFocusTaskId(id);
     setActiveTab("focus");
@@ -146,6 +159,7 @@ export function HealthProvider({ children }) {
     tasks,
     priorityTasks,
     toggleTask,
+    setBudgetMins,
     focusTask,
     focusTaskId,
     startFocus,

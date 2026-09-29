@@ -240,7 +240,7 @@ export default function OverviewTab() {
                   </span>
                   <span>{top.format}</span>
                   <span className="inline-flex items-center gap-1.5 rounded-full bg-indigo-50 px-3 py-1 text-xs font-bold text-indigo-700">
-                    <Timer size={14} /> {top.userTimeMins} mins allocated
+                    <Timer size={14} /> {top.budgetMins ?? top.userTimeMins} mins allocated
                   </span>
                   {top.isAudioConverted && (
                     <span className="inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-3 py-1 text-xs font-bold text-violet-700">
