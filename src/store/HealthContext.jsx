@@ -105,6 +105,8 @@ export function HealthProvider({ children }) {
   const [focusTaskId, setFocusTaskId] = useState(null);
   const [activeTab, setActiveTab] = useState("overview");
   const [focusLockout, setFocusLockout] = useState(false);
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [ytCategory, setYtCategory] = useState("stress");
 
   // Cognitive Readiness Index: computed, 100 - stressScore
   const criScore = useMemo(
@@ -130,6 +132,16 @@ export function HealthProvider({ children }) {
       ts.map((t) =>
         t.id === id
           ? { ...t, budgetMins: Math.max(5, Math.min(180, Math.round(mins))) }
+          : t
+      )
+    );
+
+  /** Convert dense textbook readings into 2-minute AI audio briefs. */
+  const convertDenseReadings = () =>
+    setTasks((ts) =>
+      ts.map((t) =>
+        /reading|chapter/i.test(`${t.title} ${t.format}`)
+          ? { ...t, isAudioConverted: true }
           : t
       )
     );
@@ -168,6 +180,11 @@ export function HealthProvider({ children }) {
     setActiveTab,
     focusLockout,
     setFocusLockout,
+    drawerOpen,
+    setDrawerOpen,
+    ytCategory,
+    setYtCategory,
+    convertDenseReadings,
     resetBiometrics,
   };
 

@@ -30,3 +30,8 @@ npm run build
 
 - **Bio-Stress Analytics**: Three.js 3D spatial scatter (stress × HRV × energy, hover tooltips), rotating wireframe brain mesh with stress-reactive color, 24×7 circadian heatmap, Recharts 24h dual-axis recovery curves, cognitive time donut, 5-point wellness radar, AI insights
 - **Task Manager & Back-Scheduler**: Classroom sync simulation, per-task time budgeting (presets + slider) with live daily total, 3-column smart prioritizer (Do Right Now / Quick Wins / stress-activated Audio Queue), back-scheduler modal with draggable milestone handles
+
+## Phase 4 — Simulator, Routing & Motion
+
+- **Demo & Sensor Simulator**: presentation banner, 3 one-click biometric presets (Flow State / Exam Overwhelm / Late Night Burnout) with cross-tab effects (audio auto-conversion, YouTube category routing), live Stress/HRV/CO₂ sliders, smart YouTube recommendation router badge (stress slider drives Tab 5's category live)
+- **Motion & navigation**: Framer Motion page transitions on every tab, spring-animated mobile navigation drawer, light glassmorphism theme throughout

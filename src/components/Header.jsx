@@ -1,10 +1,19 @@
-import { Bluetooth, BatteryMedium } from "lucide-react";
+import { Bluetooth, BatteryMedium, Menu } from "lucide-react";
+import { useHealth } from "../store/HealthContext";
 
 export default function Header() {
+  const { setDrawerOpen } = useHealth();
   return (
     <header className="sticky top-0 z-20 px-4 pt-4 md:px-8">
       <div className="glass-card flex items-center justify-between gap-3 px-4 py-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3">
+          <button
+            onClick={() => setDrawerOpen(true)}
+            aria-label="Open menu"
+            className="grid h-9 w-9 place-items-center rounded-xl text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900 md:hidden"
+          >
+            <Menu size={20} />
+          </button>
           <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
             <span className="relative flex h-2.5 w-2.5">
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
