@@ -108,6 +108,13 @@ export function HealthProvider({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [ytCategory, setYtCategory] = useState("stress");
 
+  // --- Procrastination Lab state ---
+  const [causeOverrides, setCauseOverrides] = useState({}); // taskId -> cause key
+  const [taskMilestones, setTaskMilestones] = useState({}); // taskId -> [names]
+  const [draftTaskIds, setDraftTaskIds] = useState([]); // good-enough draft mode
+  const [ifThenPlans, setIfThenPlans] = useState([]); // [{id, cue, action}]
+  const [nudgeLog, setNudgeLog] = useState([]); // [{id, text, ts}]
+
   // Cognitive Readiness Index: computed, 100 - stressScore
   const criScore = useMemo(
     () => Math.max(0, Math.min(100, Math.round(100 - stressScore))),
@@ -145,6 +152,31 @@ export function HealthProvider({ children }) {
           : t
       )
     );
+
+  /** Override the auto-detected procrastination cause for a task. */
+  const setTaskCause = (id, cause) =>
+    setCauseOverrides((m) => ({ ...m, [id]: cause }));
+
+  /** Append decomposed milestones to a task. */
+  const addMilestones = (id, names) =>
+    setTaskMilestones((m) => ({ ...m, [id]: [...(m[id] || []), ...names] }));
+
+  /** Toggle "good-enough draft" mode (perfectionism antidote). */
+  const toggleDraftMode = (id) =>
+    setDraftTaskIds((ids) =>
+      ids.includes(id) ? ids.filter((x) => x !== id) : [...ids, id]
+    );
+
+  /** Save an implementation-intention (if-then) plan. */
+  const addIfThenPlan = (cue, action) =>
+    setIfThenPlans((ps) => [...ps, { id: Date.now(), cue, action }]);
+
+  /** Record a nudge the student acted on. */
+  const logNudge = (text) =>
+    setNudgeLog((ls) => [
+      { id: Date.now(), text, ts: new Date().toLocaleTimeString() },
+      ...ls,
+    ].slice(0, 12));
 
   const startFocus = (id) => {
     setFocusTaskId(id);
@@ -185,6 +217,16 @@ export function HealthProvider({ children }) {
     ytCategory,
     setYtCategory,
     convertDenseReadings,
+    causeOverrides,
+    setTaskCause,
+    taskMilestones,
+    addMilestones,
+    draftTaskIds,
+    toggleDraftMode,
+    ifThenPlans,
+    addIfThenPlan,
+    nudgeLog,
+    logNudge,
     resetBiometrics,
   };
 

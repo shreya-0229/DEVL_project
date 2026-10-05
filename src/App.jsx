@@ -8,6 +8,7 @@ import OverviewTab from "./tabs/OverviewTab";
 import AnalyticsTab from "./tabs/AnalyticsTab";
 import TasksTab from "./tabs/TasksTab";
 import FocusTab from "./tabs/FocusTab";
+import ProcrastinationTab from "./tabs/ProcrastinationTab";
 import RecoveryTab from "./tabs/RecoveryTab";
 import SimulatorTab from "./tabs/SimulatorTab";
 
@@ -16,6 +17,7 @@ const TABS = {
   analytics: AnalyticsTab,
   tasks: TasksTab,
   focus: FocusTab,
+  procrastination: ProcrastinationTab,
   recovery: RecoveryTab,
   simulator: SimulatorTab,
 };

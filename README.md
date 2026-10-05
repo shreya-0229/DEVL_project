@@ -35,3 +35,10 @@ npm run build
 
 - **Demo & Sensor Simulator**: presentation banner, 3 one-click biometric presets (Flow State / Exam Overwhelm / Late Night Burnout) with cross-tab effects (audio auto-conversion, YouTube category routing), live Stress/HRV/CO₂ sliders, smart YouTube recommendation router badge (stress slider drives Tab 5's category live)
 - **Motion & navigation**: Framer Motion page transitions on every tab, spring-animated mobile navigation drawer, light glassmorphism theme throughout
+
+## Phase 5 — Procrastination Lab, Correlation Analytics & More 3D
+
+- **Procrastination Lab (new tab)**: live Procrastination Risk Score (animated ring, responds to stress + task state), study streak, crunch-zone counter, "Eat the Frog" hardest-task card, per-task delay-cause diagnosis (overwhelm / perfectionism / boredom / distraction / unclear / low-energy) with one-tap correction, crunch-index meters, milestone decomposition, 6-action Nudge Action Center (2-min kickoff → Focus Mode, decompose, if-then plan builder, good-enough draft mode, self-compassion reset, temptation bundling), nudge effectiveness log
+- **3D Procrastination Landscape**: Three.js urgency × effort × aversiveness task nodes, color-coded by delay cause, hover delay profiles, pulsing most-urgent ring, red "danger zone" floor
+- **Analytics upgrades**: 3D Stress Towers (7 days × 3 dayparts, height + color = stress), Correlation Lab (Pearson r + regression trendline across 30 days for sleep→focus, screen→stress, study→focus, HRV→focus with behavioral insights)
+- **Charts**: 14-day crunch-index area, planned-vs-started intention–action gap bars, delay-cause donut

@@ -6,6 +6,8 @@ import CircadianHeatmap from "../analytics/CircadianHeatmap";
 import BioLineChart from "../analytics/BioLineChart";
 import TimeDonut from "../analytics/TimeDonut";
 import WellnessRadar from "../analytics/WellnessRadar";
+import StressTowers3D from "../analytics/StressTowers3D";
+import CorrelationLab from "../analytics/CorrelationLab";
 
 function SectionCard({ index, title, sub, children, className = "" }) {
   return (
@@ -65,8 +67,9 @@ export default function AnalyticsTab() {
           Bio-Stress Analytics
         </h1>
         <p className="mt-1.5 max-w-2xl text-sm font-medium text-slate-500">
-          Six visual models of your physiology — spatial clustering, neural state, circadian
-          rhythm, recovery curves, time allocation, and holistic wellness.
+          Eight visual models of your physiology — spatial clustering, neural state,
+          circadian rhythm, recovery curves, time allocation, holistic wellness, 3D stress
+          towers, and a correlation lab.
         </p>
       </div>
 
@@ -135,6 +138,22 @@ export default function AnalyticsTab() {
           </div>
         </div>
       </div>
+
+      <SectionCard
+        index="7"
+        title="3D Stress Towers"
+        sub="7 days × morning / afternoon / night · bar height = stress intensity"
+      >
+        <StressTowers3D />
+      </SectionCard>
+
+      <SectionCard
+        index="8"
+        title="Correlation Lab"
+        sub="Pearson r across 30 days · pick a pair, read the relationship"
+      >
+        <CorrelationLab />
+      </SectionCard>
     </div>
   );
 }
