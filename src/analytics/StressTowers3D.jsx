@@ -19,7 +19,6 @@ export default function StressTowers3D() {
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(50, width / HEIGHT, 0.1, 200);
-    camera.position.set(13, 10, 15);
 
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
     renderer.setSize(width, HEIGHT);
@@ -37,15 +36,18 @@ export default function StressTowers3D() {
     dir.position.set(8, 14, 6);
     scene.add(dir);
 
-    const grid = new THREE.GridHelper(24, 12, 0x94a3b8, 0xe2e8f0);
+    const grid = new THREE.GridHelper(28, 14, 0x94a3b8, 0xe2e8f0);
     grid.material.transparent = true;
     grid.material.opacity = 0.35;
     scene.add(grid);
 
+    const world = new THREE.Group();
+    scene.add(world);
+
     const data = weeklyTowers();
     const bars = [];
-    const cellX = 2.6;
-    const cellZ = 3.4;
+    const cellX = 3.2;
+    const cellZ = 4.0;
 
     data.forEach((d, i) => {
       const dayIdx = Math.floor(i / 3);
@@ -72,7 +74,7 @@ export default function StressTowers3D() {
         mat.emissiveIntensity = 0.35;
       }
       bar.userData.node = d;
-      scene.add(bar);
+      world.add(bar);
       bars.push(bar);
     });
 
@@ -99,9 +101,26 @@ export default function StressTowers3D() {
         new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false })
       );
       sp.scale.set(2.4, 0.9, 1);
-      sp.position.set((i - 3) * cellX, 0.15, 6.4);
-      scene.add(sp);
+      sp.position.set((i - 3) * cellX, 0.15, cellZ + 2.8);
+      world.add(sp);
     });
+
+    // Fit the camera to the scene so the towers fill the frame on any screen
+    const bbox = new THREE.Box3().setFromObject(world);
+    const center = bbox.getCenter(new THREE.Vector3());
+    const size = bbox.getSize(new THREE.Vector3());
+    const maxDim = Math.max(size.x, size.y, size.z);
+    const fov = (camera.fov * Math.PI) / 180;
+    const fitH = maxDim / (2 * Math.tan(fov / 2));
+    const fitW = fitH / camera.aspect;
+    const dist = 1.3 * Math.max(fitH, fitW);
+    const viewDir = new THREE.Vector3(0.85, 0.6, 1).normalize();
+    camera.position.copy(center).addScaledVector(viewDir, dist);
+    camera.near = dist / 100;
+    camera.far = dist * 100;
+    camera.updateProjectionMatrix();
+    controls.target.copy(center);
+    controls.update();
 
     const raycaster = new THREE.Raycaster();
     const pointer = new THREE.Vector2();

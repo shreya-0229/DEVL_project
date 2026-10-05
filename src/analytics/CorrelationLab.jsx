@@ -36,7 +36,7 @@ export default function CorrelationLab() {
   const [pairId, setPairId] = useState(CORR_PAIRS[0].id);
   const pair = CORR_PAIRS.find((p) => p.id === pairId);
 
-  const { points, r, line } = useMemo(() => {
+  const { points, r, line, xDomain, yDomain } = useMemo(() => {
     const series = correlationSeries();
     const xs = series.map((s) => s[pair.x]);
     const ys = series.map((s) => s[pair.y]);
@@ -44,6 +44,10 @@ export default function CorrelationLab() {
     const { slope, intercept } = linreg(xs, ys);
     const minX = Math.min(...xs);
     const maxX = Math.max(...xs);
+    const minY = Math.min(...ys);
+    const maxY = Math.max(...ys);
+    const padX = (maxX - minX) * 0.08 || 1;
+    const padY = (maxY - minY) * 0.12 || 1;
     return {
       points: series.map((s, i) => ({ x: s[pair.x], y: s[pair.y], day: i + 1 })),
       r: rr,
@@ -51,6 +55,8 @@ export default function CorrelationLab() {
         { x: minX, y: slope * minX + intercept },
         { x: maxX, y: slope * maxX + intercept },
       ],
+      xDomain: [minX - padX, maxX + padX],
+      yDomain: [minY - padY, maxY + padY],
     };
   }, [pair]);
 
@@ -82,19 +88,22 @@ export default function CorrelationLab() {
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
           <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart margin={{ top: 8, right: 12, bottom: 8, left: -8 }}>
+            <ComposedChart
+              data={points}
+              margin={{ top: 8, right: 12, bottom: 8, left: -8 }}
+            >
               <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
               <XAxis
                 dataKey="x"
                 type="number"
-                name={pair.xLabel}
+                domain={xDomain}
                 tick={{ fontSize: 11, fill: "#64748B" }}
                 label={{ value: pair.xLabel, position: "bottom", fontSize: 11, fill: "#94A3B8" }}
               />
               <YAxis
                 dataKey="y"
                 type="number"
-                name={pair.yLabel}
+                domain={yDomain}
                 tick={{ fontSize: 11, fill: "#64748B" }}
               />
               <Tooltip
