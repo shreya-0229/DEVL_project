@@ -1,15 +1,4 @@
 import { useMemo, useState } from "react";
-import {
-  ResponsiveContainer,
-  ScatterChart,
-  Scatter,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Line,
-  ComposedChart,
-} from "recharts";
 import { Sigma } from "lucide-react";
 import {
   correlationSeries,
@@ -17,6 +6,13 @@ import {
   corrStrength,
   CORR_PAIRS,
 } from "./procData";
+
+const W = 660;
+const H = 320;
+const ML = 46; // left margin
+const MR = 16; // right margin
+const MT = 14; // top margin
+const MB = 42; // bottom margin
 
 function linreg(xs, ys) {
   const n = xs.length;
@@ -30,6 +26,18 @@ function linreg(xs, ys) {
   }
   const slope = den ? num / den : 0;
   return { slope, intercept: my - slope * mx };
+}
+
+function ticks(min, max, count = 5) {
+  const step = (max - min) / (count - 1);
+  return Array.from({ length: count }, (_, i) => min + step * i);
+}
+
+function fmt(v) {
+  const a = Math.abs(v);
+  if (a >= 100) return v.toFixed(0);
+  if (a >= 10) return v.toFixed(1);
+  return v.toFixed(2);
 }
 
 export default function CorrelationLab() {
@@ -63,6 +71,13 @@ export default function CorrelationLab() {
   const strength = corrStrength(r);
   const dir = r >= 0 ? "positive" : "negative";
 
+  const plotW = W - ML - MR;
+  const plotH = H - MT - MB;
+  const sx = (v) => ML + ((v - xDomain[0]) / (xDomain[1] - xDomain[0])) * plotW;
+  const sy = (v) => MT + (1 - (v - yDomain[0]) / (yDomain[1] - yDomain[0])) * plotH;
+  const xTicks = ticks(xDomain[0], xDomain[1]);
+  const yTicks = ticks(yDomain[0], yDomain[1]);
+
   return (
     <div>
       <div className="mb-4 flex flex-wrap gap-2">
@@ -87,48 +102,56 @@ export default function CorrelationLab() {
 
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="lg:col-span-2">
-          <ResponsiveContainer width="100%" height={300}>
-            <ComposedChart
-              data={points}
-              margin={{ top: 8, right: 12, bottom: 8, left: -8 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" stroke="#E2E8F0" />
-              <XAxis
-                dataKey="x"
-                type="number"
-                domain={xDomain}
-                tick={{ fontSize: 11, fill: "#64748B" }}
-                label={{ value: pair.xLabel, position: "bottom", fontSize: 11, fill: "#94A3B8" }}
-              />
-              <YAxis
-                dataKey="y"
-                type="number"
-                domain={yDomain}
-                tick={{ fontSize: 11, fill: "#64748B" }}
-              />
-              <Tooltip
-                cursor={{ strokeDasharray: "3 3" }}
-                contentStyle={{
-                  borderRadius: 14,
-                  border: "1px solid #E2E8F0",
-                  fontSize: 12,
-                  fontWeight: 600,
-                }}
-                formatter={(v, name) => [v, name === "y" ? pair.yLabel : pair.xLabel]}
-                labelFormatter={(_, p) => `Day ${p?.[0]?.payload?.day ?? ""}`}
-              />
-              <Scatter data={points} fill={pair.color} fillOpacity={0.75} />
-              <Line
-                data={line}
-                dataKey="y"
-                stroke="#0F172A"
-                strokeWidth={2}
-                strokeDasharray="6 4"
-                dot={false}
-                isAnimationActive={false}
-              />
-            </ComposedChart>
-          </ResponsiveContainer>
+          <svg
+            viewBox={`0 0 ${W} ${H}`}
+            className="h-[300px] w-full"
+            preserveAspectRatio="xMidYMid meet"
+            role="img"
+            aria-label={`${pair.xLabel} versus ${pair.yLabel} scatter plot`}
+          >
+            {/* gridlines */}
+            {yTicks.map((t) => (
+              <g key={`y${t}`}>
+                <line x1={ML} y1={sy(t)} x2={W - MR} y2={sy(t)} stroke="#E2E8F0" strokeDasharray="3 3" />
+                <text x={ML - 8} y={sy(t)} textAnchor="end" dominantBaseline="middle" fontSize={11} fill="#64748B">
+                  {fmt(t)}
+                </text>
+              </g>
+            ))}
+            {xTicks.map((t) => (
+              <g key={`x${t}`}>
+                <line x1={sx(t)} y1={MT} x2={sx(t)} y2={H - MB} stroke="#E2E8F0" strokeDasharray="3 3" />
+                <text x={sx(t)} y={H - MB + 16} textAnchor="middle" fontSize={11} fill="#64748B">
+                  {fmt(t)}
+                </text>
+              </g>
+            ))}
+
+            {/* axes */}
+            <line x1={ML} y1={MT} x2={ML} y2={H - MB} stroke="#94A3B8" strokeWidth={1.5} />
+            <line x1={ML} y1={H - MB} x2={W - MR} y2={H - MB} stroke="#94A3B8" strokeWidth={1.5} />
+            <text x={(ML + W - MR) / 2} y={H - 6} textAnchor="middle" fontSize={11} fill="#94A3B8" fontWeight={700}>
+              {pair.xLabel}
+            </text>
+
+            {/* regression line */}
+            <line
+              x1={sx(line[0].x)}
+              y1={sy(line[0].y)}
+              x2={sx(line[1].x)}
+              y2={sy(line[1].y)}
+              stroke="#0F172A"
+              strokeWidth={2}
+              strokeDasharray="6 4"
+            />
+
+            {/* scatter points */}
+            {points.map((p, i) => (
+              <circle key={i} cx={sx(p.x)} cy={sy(p.y)} r={5.5} fill={pair.color} fillOpacity={0.75} stroke="#fff" strokeWidth={1.2}>
+                <title>{`Day ${p.day}: ${pair.xLabel} ${fmt(p.x)}, ${pair.yLabel} ${fmt(p.y)}`}</title>
+              </circle>
+            ))}
+          </svg>
         </div>
 
         <div className="flex flex-col justify-center rounded-2xl bg-slate-50 p-5">
