@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   HeartPulse,
   Play,
@@ -153,12 +153,103 @@ function AudioSummaryPlayer() {
   const [elapsed, setElapsed] = useState(0);
   const [speed, setSpeed] = useState(1.25);
   const [showTranscript, setShowTranscript] = useState(false);
+  const [noVoice, setNoVoice] = useState(false);
+  const chainRef = useRef({ chunks: [], idx: 0, rate: 1.25 });
+  const playStateRef = useRef(false);
+  playStateRef.current = playing;
 
   const bars = useMemo(
     () => Array.from({ length: 52 }, (_, i) => 6 + Math.round(prand(i * 7 + 3) * 26)),
     []
   );
 
+  const pickVoice = () => {
+    const synth = window.speechSynthesis;
+    if (!synth) return null;
+    const voices = synth.getVoices();
+    if (!voices.length) return null;
+    return (
+      voices.find((v) => /en-US/i.test(v.lang) && /google/i.test(v.name)) ||
+      voices.find((v) => /en_US/i.test(v.lang)) ||
+      voices.find((v) => /^en/i.test(v.lang)) ||
+      voices[0]
+    );
+  };
+
+  // Speak the transcript in paragraph chunks (avoids the long-utterance cutoff
+  // some browsers apply) chained via onend.
+  const startSpeech = (rate) => {
+    const synth = window.speechSynthesis;
+    if (!synth) {
+      setNoVoice(true);
+      return;
+    }
+    synth.cancel();
+    const chunks = TRANSCRIPT.split("\n\n").filter(Boolean);
+    chainRef.current = { chunks, idx: 0, rate };
+    const voice = pickVoice();
+    const speakChunk = () => {
+      const { chunks: cs, idx, rate: r } = chainRef.current;
+      if (idx >= cs.length) {
+        setElapsed(SUMMARY_LENGTH);
+        setPlaying(false);
+        return;
+      }
+      const u = new SpeechSynthesisUtterance(cs[idx]);
+      u.rate = r;
+      u.pitch = 1;
+      if (voice) u.voice = voice;
+      u.onend = () => {
+        if (!playStateRef.current) return; // paused/cancelled mid-chain
+        chainRef.current.idx += 1;
+        speakChunk();
+      };
+      u.onerror = () => {
+        setPlaying(false);
+      };
+      synth.speak(u);
+    };
+    speakChunk();
+  };
+
+  const stopSpeech = () => {
+    if (window.speechSynthesis) window.speechSynthesis.cancel();
+  };
+
+  const handlePlayPause = () => {
+    const synth = window.speechSynthesis;
+    if (done) {
+      setElapsed(0);
+      setPlaying(true);
+      startSpeech(speed);
+      return;
+    }
+    if (playing) {
+      if (synth) synth.pause();
+      setPlaying(false);
+    } else {
+      if (synth && synth.paused) {
+        synth.resume();
+        setPlaying(true);
+      } else {
+        setElapsed(0);
+        setPlaying(true);
+        startSpeech(speed);
+      }
+    }
+  };
+
+  const cycleSpeed = () => {
+    const next = SPEEDS[(SPEEDS.indexOf(speed) + 1) % SPEEDS.length];
+    setSpeed(next);
+    if (playing) {
+      // rate only applies at speak time — restart the reading with the new rate
+      setElapsed(0);
+      startSpeech(next);
+    }
+  };
+
+  // UI progress timer (runs while "playing")
   useEffect(() => {
     if (!playing) return;
     if (elapsed >= SUMMARY_LENGTH) {
@@ -172,8 +263,12 @@ function AudioSummaryPlayer() {
     return () => clearTimeout(t);
   }, [playing, elapsed, speed]);
 
-  const cycleSpeed = () =>
-    setSpeed((s) => SPEEDS[(SPEEDS.indexOf(s) + 1) % SPEEDS.length]);
+  // stop any speech when leaving the player
+  useEffect(() => {
+    return () => {
+      if (window.speechSynthesis) window.speechSynthesis.cancel();
+    };
+  }, []);
 
   const done = elapsed >= SUMMARY_LENGTH;
 
@@ -195,14 +290,7 @@ function AudioSummaryPlayer() {
 
       <div className="mt-5 flex items-center gap-4">
         <button
-          onClick={() => {
-            if (done) {
-              setElapsed(0);
-              setPlaying(true);
-            } else {
-              setPlaying((p) => !p);
-            }
-          }}
+          onClick={handlePlayPause}
           aria-label={playing ? "Pause summary" : "Play summary"}
           className="grid h-14 w-14 shrink-0 place-items-center rounded-full bg-gradient-to-br from-violet-500 to-pink-500 text-white shadow-lg shadow-pink-500/30 transition-transform hover:scale-105 active:scale-95"
         >
@@ -246,6 +334,11 @@ function AudioSummaryPlayer() {
           </div>
         </div>
       </div>
+      {noVoice && (
+        <p className="mt-3 text-xs font-bold text-rose-600">
+          Your browser couldn't provide a voice for read-aloud on this device.
+        </p>
+      )}
 
       <button
         onClick={() => setShowTranscript((s) => !s)}
